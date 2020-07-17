@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.SysProgrammeMapper">
+
+    <resultMap type="SysProgramme" id="SysProgrammeResult">
+        <result property="programmeId"    column="programme_id"    />
+        <result property="customerId"    column="customer_id"    />
+        <result property="degree"    column="degree"    />
+        <result property="effect"    column="effect"    />
+        <result property="age"    column="age"    />
+        <result property="type"    column="type"    />
+    </resultMap>
+
+    <sql id="selectSysProgrammeVo">
+        select programme_id, customer_id, degree, effect, age, type from sys_programme
+    </sql>
+
+    <select id="selectSysProgrammeList" parameterType="SysProgramme" resultMap="SysProgrammeResult">
+        <include refid="selectSysProgrammeVo"/>
+        <where>
+            <if test="customerId != null "> and customer_id = #{customerId}</if>
+            <if test="degree != null "> and degree = #{degree}</if>
+            <if test="effect != null "> and effect = #{effect}</if>
+            <if test="age != null "> and age = #{age}</if>
+            <if test="type != null  and type != ''"> and type = #{type}</if>
+        </where>
+    </select>
+
+    <select id="selectSysProgrammeById" parameterType="Long" resultMap="SysProgrammeResult">
+        <include refid="selectSysProgrammeVo"/>
+        where programme_id = #{programmeId}
+    </select>
+
+    <insert id="insertSysProgramme" parameterType="SysProgramme" useGeneratedKeys="true" keyProperty="programmeId">
+        insert into sys_programme
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="customerId != null">customer_id,</if>
+            <if test="degree != null">degree,</if>
+            <if test="effect != null">effect,</if>
+            <if test="age != null">age,</if>
+            <if test="type != null">type,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="customerId != null">#{customerId},</if>
+            <if test="degree != null">#{degree},</if>
+            <if test="effect != null">#{effect},</if>
+            <if test="age != null">#{age},</if>
+            <if test="type != null">#{type},</if>
+        </trim>
+    </insert>
+
+    <update id="updateSysProgramme" parameterType="SysProgramme">
+        update sys_programme
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="customerId != null">customer_id = #{customerId},</if>
+            <if test="degree != null">degree = #{degree},</if>
+            <if test="effect != null">effect = #{effect},</if>
+            <if test="age != null">age = #{age},</if>
+            <if test="type != null">type = #{type},</if>
+        </trim>
+        where programme_id = #{programmeId}
+    </update>
+
+    <delete id="deleteSysProgrammeById" parameterType="Long">
+        delete from sys_programme where programme_id = #{programmeId}
+    </delete>
+
+    <delete id="deleteSysProgrammeByIds" parameterType="String">
+        delete from sys_programme where programme_id in
+        <foreach item="programmeId" collection="array" open="(" separator="," close=")">
+            #{programmeId}
+        </foreach>
+    </delete>
+
+</mapper>

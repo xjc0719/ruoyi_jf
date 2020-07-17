@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" >
+<head>
+    <th:block th:include="include :: header('修改文件信息')" />
+</head>
+<body class="white-bg">
+<div class="wrapper wrapper-content animated fadeInRight ibox-content">
+    <form class="form-horizontal m" id="form-info-edit" th:object="${sysFileInfo}">
+        <input name="fileId" th:field="*{fileId}" type="hidden">
+        <div class="form-group">
+            <label class="col-sm-3 control-label">文件名称：</label>
+            <div class="col-sm-8">
+                <input id="fileName" name="fileName" th:field="*{fileName}" class="form-control" type="text">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">文件路径：</label>
+            <div class="col-sm-8">
+                <input id="filePath" name="filePath" th:field="*{filePath}" class="form-control" type="text">
+                <input id="file" name="file" onchange="readLocalFile()" class="form-control" accept="image/*"  type="file">
+                <textarea id="fileContent" name="fileContent" rows="2" style="width:80%;display:none" ></textarea>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-8" align="center" >
+                <input class="form-control" id="show" name="show" alt="预览图片"
+                       th:src="(${filePath} == '') ? @{/img/profile.jpg} : @{${filePath}}  "
+                       type="image" style="margin-left:40%;width:80%;height:80%; border:solid 1px;
+                        " onerror="this.src='/img/profile.jpg;this.onerror=null'">
+            </div>
+        </div>
+    </form>
+</div>
+<th:block th:include="include :: footer" />
+<script th:inline="javascript">
+    var prefix = ctx + "system/info";
+    $("#form-info-edit").validate({
+        focusCleanup: true
+    });
+
+    function submitHandler() {
+        if ($.validate.form()) {
+            //modifyFile();
+            $.operate.save(prefix + "/edit", $('#form-info-edit').serialize());
+        }
+    }
+    function readLocalFile() {
+        var loadFile= document.getElementById("file").files[0];
+        if(loadFile.type !== 'image/jpeg' && loadFile.type !== 'image/png' && loadFile.type !== 'image/gif' && loadFile.type !== 'image/jpg'){
+            $.modal.msgWarning('不是有效的图片');
+            //$.modal.alertWarning("请先选择文件路径");
+            var file = document.getElementById('file');
+            file.outerHTML = file.outerHTML;
+            return;
+        }
+        if(loadFile.size > 5120000){
+            $.modal.msgWarning('上传图片最大5M');
+            var file = document.getElementById('file');
+            file.outerHTML = file.outerHTML;
+            return;
+        }
+        var oldName = document.getElementById("filePath").value;
+        document.getElementById('filePath').value = loadFile.name;
+        var reader = new FileReader();
+        var content ;
+        reader.onload = function(event){
+            content = event.target.result;
+            document.getElementById('show').src = content;
+            document.getElementById('fileContent').value = content;
+        }
+        reader.onerror = function(event){
+            $.modal.msgWarning('服务出错，请重试或联系管理员')
+        }
+        content = reader.readAsDataURL(loadFile,'UTF-8');
+    }
+</script>
+</body>
+</html>
